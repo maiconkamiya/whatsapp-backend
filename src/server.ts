@@ -7,8 +7,37 @@ import Company from "./models/Company";
 import { startQueueProcess } from "./queues";
 import { TransferTicketQueue } from "./wbotTransferTicketQueue";
 import cron from "node-cron";
+import fs from "fs";
+import http from 'http';
+import https from 'https';
 
+
+var privateKey  = fs.readFileSync('/etc/nginx/ssl/wapi.criativa.solutions/2405186/server.key', 'utf8');
+var certificate = fs.readFileSync('/etc/nginx/ssl/wapi.criativa.solutions/2405186/server.crt', 'utf8');
+
+var credentials = {key: privateKey, cert: certificate};
+
+//var httpServer = http.createServer(app);
+var httpsServer = https.createServer(credentials, app);
+
+/*
 const server = app.listen(process.env.PORT, async () => {
+  const companies = await Company.findAll();
+  const allPromises: any[] = [];
+  companies.map(async c => {
+    const promise = StartAllWhatsAppsSessions(c.id);
+    allPromises.push(promise);
+  });
+
+  Promise.all(allPromises).then(() => {
+    startQueueProcess();
+  });
+  logger.info(`Server started on port: ${process.env.PORT}`);
+});
+*/
+
+//httpServer.listen(process.env.PORT);
+httpsServer.listen(process.env.PORT, async () => {
   const companies = await Company.findAll();
   const allPromises: any[] = [];
   companies.map(async c => {
@@ -36,5 +65,5 @@ cron.schedule("* * * * *", async () => {
 
 });
 
-initIO(server);
-gracefulShutdown(server);
+initIO(httpsServer);
+gracefulShutdown(httpsServer);
