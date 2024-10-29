@@ -8,7 +8,7 @@ import { startQueueProcess } from "./queues";
 import { TransferTicketQueue } from "./wbotTransferTicketQueue";
 import cron from "node-cron";
 
-const server = app.listen(process.env.PORT, async () => {
+const server = app.listen(process.env.PORT, '0.0.0.0', async () => {
   const companies = await Company.findAll();
   const allPromises: any[] = [];
   companies.map(async c => {
