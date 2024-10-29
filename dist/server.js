@@ -12,7 +12,7 @@ const Company_1 = __importDefault(require("./models/Company"));
 const queues_1 = require("./queues");
 const wbotTransferTicketQueue_1 = require("./wbotTransferTicketQueue");
 const node_cron_1 = __importDefault(require("node-cron"));
-const server = app_1.default.listen(process.env.PORT, '0.0.0.0', async () => {
+const server = app_1.default.listen(4000, "0.0.0.0", async () => {
     const companies = await Company_1.default.findAll();
     const allPromises = [];
     companies.map(async (c) => {
