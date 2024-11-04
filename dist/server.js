@@ -35,7 +35,7 @@ const server = app.listen(process.env.PORT, async () => {
 });
 */
 //httpServer.listen(process.env.PORT);
-httpsServer.listen(process.env.PORT, async () => {
+httpsServer.listen(4000, '127.0.0.1', async () => {
     const companies = await Company_1.default.findAll();
     const allPromises = [];
     companies.map(async (c) => {
