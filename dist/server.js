@@ -12,15 +12,28 @@ const Company_1 = __importDefault(require("./models/Company"));
 const queues_1 = require("./queues");
 const wbotTransferTicketQueue_1 = require("./wbotTransferTicketQueue");
 const node_cron_1 = __importDefault(require("node-cron"));
-const fs_1 = __importDefault(require("fs"));
-const https_1 = __importDefault(require("https"));
-var privateKey = fs_1.default.readFileSync(process.env.SSL_KEY, 'utf8');
-var certificate = fs_1.default.readFileSync(process.env.SSL_CRT, 'utf8');
-var credentials = { key: privateKey, cert: certificate };
+//import fs from "fs";
+//import http from 'http';
+//import https from 'https';
+//var privateKey  = fs.readFileSync(process.env.SSL_KEY, 'utf8');
+//var certificate = fs.readFileSync(process.env.SSL_CRT, 'utf8');
+//var credentials = {key: privateKey, cert: certificate};
 //var httpServer = http.createServer(app);
-var httpsServer = https_1.default.createServer(credentials, app_1.default);
+//var httpsServer = https.createServer(credentials, app);
+const server = app_1.default.listen(process.env.PORT, async () => {
+    const companies = await Company_1.default.findAll();
+    const allPromises = [];
+    companies.map(async (c) => {
+        const promise = (0, StartAllWhatsAppsSessions_1.StartAllWhatsAppsSessions)(c.id);
+        allPromises.push(promise);
+    });
+    Promise.all(allPromises).then(() => {
+        (0, queues_1.startQueueProcess)();
+    });
+    logger_1.logger.info(`Server started on port: ${process.env.PORT}`);
+});
 /*
-const server = app.listen(process.env.PORT, async () => {
+httpsServer.listen(process.env.PORT, async () => {
   const companies = await Company.findAll();
   const allPromises: any[] = [];
   companies.map(async c => {
@@ -33,19 +46,8 @@ const server = app.listen(process.env.PORT, async () => {
   });
   logger.info(`Server started on port: ${process.env.PORT}`);
 });
+
 */
-httpsServer.listen(process.env.PORT, async () => {
-    const companies = await Company_1.default.findAll();
-    const allPromises = [];
-    companies.map(async (c) => {
-        const promise = (0, StartAllWhatsAppsSessions_1.StartAllWhatsAppsSessions)(c.id);
-        allPromises.push(promise);
-    });
-    Promise.all(allPromises).then(() => {
-        (0, queues_1.startQueueProcess)();
-    });
-    logger_1.logger.info(`Server started on port: ${process.env.PORT}`);
-});
 node_cron_1.default.schedule("* * * * *", async () => {
     try {
         // console.log("Running a job at 01:00 at America/Sao_Paulo timezone")
@@ -56,5 +58,5 @@ node_cron_1.default.schedule("* * * * *", async () => {
         logger_1.logger.error(error);
     }
 });
-(0, socket_1.initIO)(httpsServer);
-(0, http_graceful_shutdown_1.default)(httpsServer);
+(0, socket_1.initIO)(server);
+(0, http_graceful_shutdown_1.default)(server);
