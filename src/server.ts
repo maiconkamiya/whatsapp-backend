@@ -35,7 +35,7 @@ const server = app.listen(process.env.PORT, async () => {
   logger.info(`Server started on port: ${process.env.PORT}`);
 });
 */
-httpsServer.listen(4000, '127.0.0.1', async () => {
+httpsServer.listen(process.env.PORT, async () => {
   const companies = await Company.findAll();
   const allPromises: any[] = [];
   companies.map(async c => {
