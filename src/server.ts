@@ -18,6 +18,7 @@ var certificate = fs.readFileSync(process.env.SSL_CRT, 'utf8');
 var credentials = {key: privateKey, cert: certificate};
 
 //var httpServer = http.createServer(app);
+var httpServer = http.createServer(app);
 var httpsServer = https.createServer(credentials, app);
 
 /*
@@ -36,8 +37,20 @@ const server = app.listen(process.env.PORT, async () => {
 });
 */
 
-//httpServer.listen(process.env.PORT);
-httpsServer.listen(4000, '127.0.0.1', async () => {
+httpServer.listen(process.env.PORT, async () => {
+  const companies = await Company.findAll();
+  const allPromises: any[] = [];
+  companies.map(async c => {
+    const promise = StartAllWhatsAppsSessions(c.id);
+    allPromises.push(promise);
+  });
+
+  Promise.all(allPromises).then(() => {
+    startQueueProcess();
+  });
+  logger.info(`Server started on port: ${process.env.PORT}`);
+});
+httpsServer.listen(process.env.PORT, async () => {
   const companies = await Company.findAll();
   const allPromises: any[] = [];
   companies.map(async c => {
@@ -65,5 +78,5 @@ cron.schedule("* * * * *", async () => {
 
 });
 
-initIO(httpsServer);
-gracefulShutdown(httpsServer);
+initIO(httpServer);
+gracefulShutdown(httpServer);
