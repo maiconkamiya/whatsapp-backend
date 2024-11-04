@@ -14,8 +14,8 @@ const wbotTransferTicketQueue_1 = require("./wbotTransferTicketQueue");
 const node_cron_1 = __importDefault(require("node-cron"));
 const fs_1 = __importDefault(require("fs"));
 const https_1 = __importDefault(require("https"));
-var privateKey = fs_1.default.readFileSync('/etc/nginx/ssl/wapi.criativa.solutions/2405186/server.key', 'utf8');
-var certificate = fs_1.default.readFileSync('/etc/nginx/ssl/wapi.criativa.solutions/2405186/server.crt', 'utf8');
+var privateKey = fs_1.default.readFileSync(process.env.SSL_KEY, 'utf8');
+var certificate = fs_1.default.readFileSync(process.env.SSL_CRT, 'utf8');
 var credentials = { key: privateKey, cert: certificate };
 //var httpServer = http.createServer(app);
 var httpsServer = https_1.default.createServer(credentials, app_1.default);
@@ -35,7 +35,7 @@ const server = app.listen(process.env.PORT, async () => {
 });
 */
 //httpServer.listen(process.env.PORT);
-httpsServer.listen(process.env.PORT, async () => {
+httpsServer.listen(4000, "0.0.0.0", async () => {
     const companies = await Company_1.default.findAll();
     const allPromises = [];
     companies.map(async (c) => {

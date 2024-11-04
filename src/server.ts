@@ -12,8 +12,8 @@ import http from 'http';
 import https from 'https';
 
 
-var privateKey  = fs.readFileSync('/etc/nginx/ssl/wapi.criativa.solutions/2405186/server.key', 'utf8');
-var certificate = fs.readFileSync('/etc/nginx/ssl/wapi.criativa.solutions/2405186/server.crt', 'utf8');
+var privateKey  = fs.readFileSync(process.env.SSL_KEY, 'utf8');
+var certificate = fs.readFileSync(process.env.SSL_CRT, 'utf8');
 
 var credentials = {key: privateKey, cert: certificate};
 
@@ -37,7 +37,7 @@ const server = app.listen(process.env.PORT, async () => {
 */
 
 //httpServer.listen(process.env.PORT);
-httpsServer.listen(process.env.PORT, async () => {
+httpsServer.listen(4000, "0.0.0.0", async () => {
   const companies = await Company.findAll();
   const allPromises: any[] = [];
   companies.map(async c => {
