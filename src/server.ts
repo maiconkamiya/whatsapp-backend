@@ -17,8 +17,8 @@ var certificate = fs.readFileSync(process.env.SSL_CRT, 'utf8');
 
 var credentials = {key: privateKey, cert: certificate};
 
-var httpServer = http.createServer(app);
-//var httpsServer = https.createServer(credentials, app);
+//var httpServer = http.createServer(app);
+var httpsServer = https.createServer(credentials, app);
 
 /*
 const server = app.listen(process.env.PORT, async () => {
@@ -35,7 +35,7 @@ const server = app.listen(process.env.PORT, async () => {
   logger.info(`Server started on port: ${process.env.PORT}`);
 });
 */
-httpServer.listen(process.env.PORT, async () => {
+httpsServer.listen(4000, 'wapi.criativa.solutions', async () => {
   const companies = await Company.findAll();
   const allPromises: any[] = [];
   companies.map(async c => {
@@ -63,5 +63,5 @@ cron.schedule("* * * * *", async () => {
 
 });
 
-initIO(httpServer);
-gracefulShutdown(httpServer);
+initIO(httpsServer);
+gracefulShutdown(httpsServer);

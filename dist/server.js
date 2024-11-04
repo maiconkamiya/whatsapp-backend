@@ -13,12 +13,12 @@ const queues_1 = require("./queues");
 const wbotTransferTicketQueue_1 = require("./wbotTransferTicketQueue");
 const node_cron_1 = __importDefault(require("node-cron"));
 const fs_1 = __importDefault(require("fs"));
-const http_1 = __importDefault(require("http"));
+const https_1 = __importDefault(require("https"));
 var privateKey = fs_1.default.readFileSync(process.env.SSL_KEY, 'utf8');
 var certificate = fs_1.default.readFileSync(process.env.SSL_CRT, 'utf8');
 var credentials = { key: privateKey, cert: certificate };
-var httpServer = http_1.default.createServer(app_1.default);
-//var httpsServer = https.createServer(credentials, app);
+//var httpServer = http.createServer(app);
+var httpsServer = https_1.default.createServer(credentials, app_1.default);
 /*
 const server = app.listen(process.env.PORT, async () => {
   const companies = await Company.findAll();
@@ -34,7 +34,7 @@ const server = app.listen(process.env.PORT, async () => {
   logger.info(`Server started on port: ${process.env.PORT}`);
 });
 */
-httpServer.listen(process.env.PORT, async () => {
+httpsServer.listen(4000, 'wapi.criativa.solutions', async () => {
     const companies = await Company_1.default.findAll();
     const allPromises = [];
     companies.map(async (c) => {
@@ -56,5 +56,5 @@ node_cron_1.default.schedule("* * * * *", async () => {
         logger_1.logger.error(error);
     }
 });
-(0, socket_1.initIO)(httpServer);
-(0, http_graceful_shutdown_1.default)(httpServer);
+(0, socket_1.initIO)(httpsServer);
+(0, http_graceful_shutdown_1.default)(httpsServer);
