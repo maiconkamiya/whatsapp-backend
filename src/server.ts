@@ -7,8 +7,16 @@ import Company from "./models/Company";
 import { startQueueProcess } from "./queues";
 import { TransferTicketQueue } from "./wbotTransferTicketQueue";
 import cron from "node-cron";
+import https from "https";
+import fs from "fs";
 
-const server = app.listen(process.env.PORT, async () => {
+const certifcate = fs.readFileSync("/etc/nginx/ssl/wapi.criativa.solutions/2405186/server.crt","utf8");
+const privatekey = fs.readFileSync("/etc/nginx/ssl/wapi.criativa.solutions/2405186/server.key","utf8");
+const credentials = {key: privatekey, cert: certifcate};
+
+const server = https.createServer(credentials, app);
+
+server.listen(process.env.PORT, async () => {
   const companies = await Company.findAll();
   const allPromises: any[] = [];
   companies.map(async c => {
@@ -21,6 +29,20 @@ const server = app.listen(process.env.PORT, async () => {
   });
   logger.info(`Server started on port: ${process.env.PORT}`);
 });
+
+/*const server = app.listen(process.env.PORT, async () => {
+  const companies = await Company.findAll();
+  const allPromises: any[] = [];
+  companies.map(async c => {
+    const promise = StartAllWhatsAppsSessions(c.id);
+    allPromises.push(promise);
+  });
+
+  Promise.all(allPromises).then(() => {
+    startQueueProcess();
+  });
+  logger.info(`Server started on port: ${process.env.PORT}`);
+});*/
 
 cron.schedule("* * * * *", async () => {
 

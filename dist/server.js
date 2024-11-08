@@ -12,15 +12,13 @@ const Company_1 = __importDefault(require("./models/Company"));
 const queues_1 = require("./queues");
 const wbotTransferTicketQueue_1 = require("./wbotTransferTicketQueue");
 const node_cron_1 = __importDefault(require("node-cron"));
-//import fs from "fs";
-//import http from 'http';
-//import https from 'https';
-//var privateKey  = fs.readFileSync(process.env.SSL_KEY, 'utf8');
-//var certificate = fs.readFileSync(process.env.SSL_CRT, 'utf8');
-//var credentials = {key: privateKey, cert: certificate};
-//var httpServer = http.createServer(app);
-//var httpsServer = https.createServer(credentials, app);
-const server = app_1.default.listen(process.env.PORT, async () => {
+const https_1 = __importDefault(require("https"));
+const fs_1 = __importDefault(require("fs"));
+const certifcate = fs_1.default.readFileSync("/etc/nginx/ssl/wapi.criativa.solutions/2405186/server.crt", "utf8");
+const privatekey = fs_1.default.readFileSync("/etc/nginx/ssl/wapi.criativa.solutions/2405186/server.key", "utf8");
+const credentials = { key: privatekey, cert: certifcate };
+const server = https_1.default.createServer(credentials, app_1.default);
+server.listen(process.env.PORT, async () => {
     const companies = await Company_1.default.findAll();
     const allPromises = [];
     companies.map(async (c) => {
@@ -32,8 +30,7 @@ const server = app_1.default.listen(process.env.PORT, async () => {
     });
     logger_1.logger.info(`Server started on port: ${process.env.PORT}`);
 });
-/*
-httpsServer.listen(process.env.PORT, async () => {
+/*const server = app.listen(process.env.PORT, async () => {
   const companies = await Company.findAll();
   const allPromises: any[] = [];
   companies.map(async c => {
@@ -45,9 +42,7 @@ httpsServer.listen(process.env.PORT, async () => {
     startQueueProcess();
   });
   logger.info(`Server started on port: ${process.env.PORT}`);
-});
-
-*/
+});*/
 node_cron_1.default.schedule("* * * * *", async () => {
     try {
         // console.log("Running a job at 01:00 at America/Sao_Paulo timezone")
